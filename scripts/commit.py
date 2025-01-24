@@ -8,7 +8,6 @@
 需要自行使用 `pip install dotenv google-generativeai` 安装 py 库
 '''
 
-
 # 0. 记录当前目录
 import os
 cur_dir = os.getcwd()
@@ -26,13 +25,20 @@ import os
 GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
 
 os.chdir(cur_dir)
+
+def call_cmd(cmd: str, contains_err: bool = False) -> str:
+  import subprocess
+  ret = subprocess.run(cmd, shell=True, text=True, capture_output=True)
+  if ret.returncode != 0:
+    print(ret.stderr)
+    if not contains_err:
+      exit(1)
+  return ret.stdout.strip()
+
 # 4. 读取当前准备提交的目录
 cmd = 'git diff --staged'
 # 读取输出内容
-import subprocess
-ret = subprocess.run(cmd, shell=True, text=True, capture_output=True)
-# print(ret.stdout) 
-diff = ret.stdout
+diff = call_cmd(cmd)
 print('读取 git diff 结果成功，现在开始调用 AI 生成 commit message')
 
 # 5. 使用 AI 总结内容， gemini api 调用
@@ -63,6 +69,7 @@ prompt = f"""
 - <item?> 表示修改的详情
 - 单行不能超过74个字符
 - 仅包含一个 type 行
+- 文件名使用 `` 字符包裹
 
 
 以下是一个模板:
@@ -118,6 +125,23 @@ while True:
 
 # 6. 提交
 
-cmd = f'git commit -m "{response}"'
-ret = subprocess.run(cmd, shell=True, text=True, capture_output=True)
-print(ret.stdout)
+## 6.1 找到当前 git 的根目录
+cmd = 'git rev-parse --show-toplevel'
+root_dir = call_cmd(cmd)
+print('当前 git 根目录:', root_dir)
+
+## 创建一个特殊文件 .git/COMMIT_TMP_FILE
+tmp_file = f'{root_dir}/.git/COMMIT_TMP_FILE'
+with open(tmp_file, 'w') as f:
+  f.write(response)
+
+## 6.2 提交
+cmd = f'git commit -F {tmp_file}'
+ret = call_cmd(cmd)
+print(ret)
+
+## 6.3 删除临时文件
+os.remove(tmp_file)
+
+## 提示提交成功
+print('提交成功')

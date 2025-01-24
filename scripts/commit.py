@@ -8,6 +8,11 @@
 需要自行使用 `pip install dotenv google-generativeai` 安装 py 库
 '''
 
+
+# 0. 记录当前目录
+import os
+cur_dir = os.getcwd()
+
 # 1. 设置当前 script 所在目录为工作目录
 import os
 os.chdir(os.path.dirname(os.path.abspath(__file__)))
@@ -20,6 +25,7 @@ load_dotenv()
 import os
 GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
 
+os.chdir(cur_dir)
 # 4. 读取当前准备提交的目录
 cmd = 'git diff --staged'
 # 读取输出内容

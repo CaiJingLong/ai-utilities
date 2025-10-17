@@ -29,3 +29,5 @@
 通过自举、调整，最终可以得到一个比较符合你需求的提示词。
 
 ## 生成其他 Agent
+
+[AI 模拟 coding 助手](./agents/Mock-Code-Assistant.md)

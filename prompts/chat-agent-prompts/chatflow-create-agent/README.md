@@ -31,3 +31,7 @@
 ## 生成其他 Agent
 
 [AI 模拟 coding 助手](./agents/Mock-Code-Assistant.md)
+
+[AI 自主编码助手](./agents/ai-coder.md)
+
+[文生图提示词增强 Agent](./agents/ai-draw-enhancer.md)
